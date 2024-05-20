@@ -1,14 +1,17 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn import model_selection
+from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
-from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
 df = pd.read_parquet('Data/Vectorized/costco_2021_reviews_filtered_vectorized_master_en_float32_nodup.parquet')
 
@@ -16,63 +19,120 @@ rating_counts = df['rating'].value_counts()
 print('Number of ratings:')
 print(rating_counts)
 
-data5 = pd.DataFrame(df[df['rating'] == 5]).iloc[:rating_counts.min()]
-data4 = pd.DataFrame(df[df['rating'] == 4]).iloc[:rating_counts.min()]
-data3 = pd.DataFrame(df[df['rating'] == 3]).iloc[:rating_counts.min()]
-data2 = pd.DataFrame(df[df['rating'] == 2]).iloc[:rating_counts.min()]
-data1 = pd.DataFrame(df[df['rating'] == 1]).iloc[:rating_counts.min()]
+X = np.array(df['vector'].tolist())
+y = np.array(df['rating'].tolist())
 
-data5_train, data5_test = train_test_split(data5, random_state=1, test_size=.2)
-data4_train, data4_test = train_test_split(data4, random_state=1, test_size=.2)
-data3_train, data3_test = train_test_split(data3, random_state=1, test_size=.2)
-data2_train, data2_test = train_test_split(data2, random_state=1, test_size=.2)
-data1_train, data1_test = train_test_split(data1, random_state=1, test_size=.2)
+# Train-test split
+X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
+                                                        random_state=100,
+                                                        stratify=y,
+                                                        test_size=0.2)
 
-data_train = pd.concat([data5_train, data4_train, data3_train, data2_train, data1_train])
-data_test = pd.concat([data5_test, data4_test, data3_test, data2_test, data1_test])
+# K-fold cross-validation
+kfold = StratifiedKFold(n_splits=5,
+                        shuffle=True,
+                        random_state=500)
 
-vectors_train = np.array(data_train['vector'].tolist())
-vectors_test = np.array(data_test['vector'].tolist())
+i = 0
+mses = np.zeros((3, 5))
+# Regression
+for i, (train_index, test_index) in enumerate(kfold.split(X_0, y_0)):
+    # Get the kfold training data
+    X_train = X_0[train_index, :]
+    y_train = y_0[train_index]
 
-ratings_train = np.array(data_train['rating'].tolist())
-ratings_test = np.array(data_test['rating'].tolist())
+    # Get the validation data
+    X_test = X_0[test_index, :]
+    y_test = y_0[test_index]
 
+    # Under-sample training data
+    rus = RandomUnderSampler(random_state=0)
+    X_resampled, y_resampled = rus.fit_resample(X_train, y_train)
 
-# Logistic Regression, One-vs-All
-logreg = LogisticRegression(multi_class='ovr', solver='liblinear')
-logreg.fit(vectors_train, ratings_train)
+    # Baseline
+    predict_baseline = y_resampled.mean() * np.ones(len(y_test))
 
-ratings_pred_logreg = logreg.predict(vectors_test)
-cm_logreg = confusion_matrix(ratings_test, ratings_pred_logreg)
-print('Confusion matrix for one-vs-all logistic regression:')
-print(cm_logreg)
+    # Linear regression
+    linreg = LinearRegression()
+    linreg.fit(X_resampled, y_resampled)
 
+    predict_linreg = linreg.predict(X_test)
 
-# Logistic Regression, Multinomial
-logreg_multi = LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=500)
-logreg_multi.fit(vectors_train, ratings_train)
+    # KNN regression
+    knnreg = KNeighborsRegressor(n_neighbors=5)
+    knnreg.fit(X_resampled, y_resampled)
 
-ratings_pred_logreg_multi = logreg_multi.predict(vectors_test)
-cm_logreg_multi = confusion_matrix(ratings_test, ratings_pred_logreg_multi)
-print('Confusion matrix for multinomial logistic regression:')
-print(cm_logreg_multi)
+    predict_knnreg = knnreg.predict(X_test)
 
-
-# Decision Tree
-depth = 10
-dtree = DecisionTreeClassifier(max_depth=depth).fit(vectors_train, ratings_train)
-ratings_pred_dtree = dtree.predict(vectors_test)
-
-# creating a confusion matrix
-cm_dtree = confusion_matrix(ratings_test, ratings_pred_dtree)
-print('Confusion matrix for decision tree (depth ' + str(depth) + '):')
-print(cm_dtree)
+    mses[0, i] = mean_squared_error(y_test, predict_baseline)
+    mses[1, i] = mean_squared_error(y_test, predict_linreg)
+    mses[2, i] = mean_squared_error(y_test, predict_knnreg)
 
 
-# SVM
-svm_linear = SVC(kernel='linear', C=1).fit(vectors_train, ratings_train)
-ratings_pred_svm = svm_linear.predict(vectors_test)
+# Classification
+for train_index, test_index in kfold.split(X_0, y_0):
+    # Get the kfold training data
+    X_train = X_0[train_index, :]
+    y_train = y_0[train_index]
 
+    # Get the validation data
+    X_test = X_0[test_index, :]
+    y_test = y_0[test_index]
+
+    # Under-sample training data
+    rus = RandomUnderSampler(random_state=0)
+    X_resampled, y_resampled = rus.fit_resample(X_train, y_train)
+
+    # Logistic regression, one-vs-rest
+    logreg = LogisticRegression(multi_class='ovr', solver='liblinear')
+    logreg.fit(X_resampled, y_resampled)
+
+    predict_logreg = logreg.predict(X_test)
+    cm_logreg = confusion_matrix(y_test, predict_logreg)
+    print('Confusion matrix for one-vs-all logistic regression:')
+    print(cm_logreg)
+
+    # KNN
+    knn = KNeighborsClassifier(n_neighbors=5)
+    knn.fit(X_resampled, y_resampled)
+
+    predict_knn = knn.predict(X_test)
+    cm_knn = confusion_matrix(y_test, predict_knn)
+    print('Confusion matrix for KNN:')
+    print(cm_knn)
+
+
+# # Logistic Regression, One-vs-All
+# logreg = LogisticRegression(multi_class='ovr', solver='liblinear')
+# logreg.fit(vectors_train, ratings_train)
+#
+# ratings_pred_logreg = logreg.predict(vectors_test)
+# cm_logreg = confusion_matrix(ratings_test, ratings_pred_logreg)
+# print('Confusion matrix for one-vs-all logistic regression:')
+# print(cm_logreg)
+#
+# # Logistic Regression, Multinomial
+# logreg_multi = LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=500)
+# logreg_multi.fit(vectors_train, ratings_train)
+#
+# ratings_pred_logreg_multi = logreg_multi.predict(vectors_test)
+# cm_logreg_multi = confusion_matrix(ratings_test, ratings_pred_logreg_multi)
+# print('Confusion matrix for multinomial logistic regression:')
+# print(cm_logreg_multi)
+#
+# # Decision Tree
+# depth = 10
+# dtree = DecisionTreeClassifier(max_depth=depth).fit(vectors_train, ratings_train)
+# ratings_pred_dtree = dtree.predict(vectors_test)
+#
+# # creating a confusion matrix
+# cm_dtree = confusion_matrix(ratings_test, ratings_pred_dtree)
+# print('Confusion matrix for decision tree (depth ' + str(depth) + '):')
+# print(cm_dtree)
+#
+# # SVM
+# svm_linear = SVC(kernel='linear', C=1).fit(vectors_train, ratings_train)
+# ratings_pred_svm = svm_linear.predict(vectors_test)
 
 # # Plotting
 # class_names = {1,2,3,4,5}
@@ -110,5 +170,3 @@ ratings_pred_svm = svm_linear.predict(vectors_test)
 # # )
 #
 # plt.show()
-
-
