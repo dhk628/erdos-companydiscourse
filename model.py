@@ -27,14 +27,14 @@ y = np.array(df['rating'].tolist())
 # Train-test split
 X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
                                                         shuffle=True,
-                                                        random_state=42,
+                                                        random_state=123,
                                                         stratify=y,
                                                         test_size=0.2)
 
 # K-fold cross-validation
 kfold = StratifiedKFold(n_splits=5,
                         shuffle=True,
-                        random_state=42)
+                        random_state=0)
 
 i = 0
 mses = np.zeros((3, 5))
