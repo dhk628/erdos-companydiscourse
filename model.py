@@ -12,6 +12,8 @@ from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+from statsmodels.miscmodels.ordinal_model import OrderedModel
+from pandas.api.types import CategoricalDtype
 
 df = pd.read_parquet('Data/Vectorized/costco_2021_reviews_filtered_vectorized_master_en_float32_nodup.parquet')
 
@@ -24,14 +26,15 @@ y = np.array(df['rating'].tolist())
 
 # Train-test split
 X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
-                                                        random_state=100,
+                                                        shuffle=True,
+                                                        random_state=42,
                                                         stratify=y,
                                                         test_size=0.2)
 
 # K-fold cross-validation
 kfold = StratifiedKFold(n_splits=5,
                         shuffle=True,
-                        random_state=500)
+                        random_state=42)
 
 i = 0
 mses = np.zeros((3, 5))
@@ -49,24 +52,37 @@ for i, (train_index, test_index) in enumerate(kfold.split(X_0, y_0)):
     rus = RandomUnderSampler(random_state=0)
     X_resampled, y_resampled = rus.fit_resample(X_train, y_train)
 
-    # Baseline
-    predict_baseline = y_resampled.mean() * np.ones(len(y_test))
+    # # Baseline
+    # predict_baseline = y_resampled.mean() * np.ones(len(y_test))
+    #
+    # # Linear regression
+    # linreg = LinearRegression()
+    # linreg.fit(X_resampled, y_resampled)
+    #
+    # predict_linreg = linreg.predict(X_test)
+    #
+    # # KNN regression
+    # knnreg = KNeighborsRegressor(n_neighbors=5)
+    # knnreg.fit(X_resampled, y_resampled)
+    #
+    # predict_knnreg = knnreg.predict(X_test)
+    #
+    # mses[0, i] = mean_squared_error(y_test, predict_baseline)
+    # mses[1, i] = mean_squared_error(y_test, predict_linreg)
+    # mses[2, i] = mean_squared_error(y_test, predict_knnreg)
 
-    # Linear regression
-    linreg = LinearRegression()
-    linreg.fit(X_resampled, y_resampled)
+    # Ordinal regression
+    y_resampled_ord = pd.Series(y_resampled).astype(CategoricalDtype(ordered=True))
+    y_test_ord = pd.Series(y_test).astype(CategoricalDtype(ordered=True))
+    ordreg = OrderedModel(y_resampled_ord,
+                          X_resampled,
+                          distr='logit')
+    ordreg.fit(method='bfgs')
 
-    predict_linreg = linreg.predict(X_test)
+    predict_ordreg = ordreg.predict(X_test)
 
-    # KNN regression
-    knnreg = KNeighborsRegressor(n_neighbors=5)
-    knnreg.fit(X_resampled, y_resampled)
+    print(mean_squared_error(y_test, predict_ordreg))
 
-    predict_knnreg = knnreg.predict(X_test)
-
-    mses[0, i] = mean_squared_error(y_test, predict_baseline)
-    mses[1, i] = mean_squared_error(y_test, predict_linreg)
-    mses[2, i] = mean_squared_error(y_test, predict_knnreg)
 
 
 # Classification
@@ -142,17 +158,17 @@ for train_index, test_index in kfold.split(X_0, y_0):
 
 
 # # PCA
-# X_reduced = PCA(n_components=2).fit_transform(vectors_train)
-# colors = {1: 'r', 2: 'g', 3: 'b', 4: 'y', 5: 'k'}
-#
-# fig = plt.figure(1, figsize=(8, 6))
-#
-# plt.scatter(
-#     X_reduced[:, 0],
-#     X_reduced[:, 1],
-#     c=[colors[r] for r in ratings_train],
-#     s=1,
-# )
+X_reduced = PCA(n_components=2).fit_transform(X_0)
+colors = {1: 'r', 2: 'g', 3: 'b', 4: 'y', 5: 'k'}
+
+fig = plt.figure(1, figsize=(8, 6))
+
+plt.scatter(
+    X_reduced[:, 0],
+    X_reduced[:, 1],
+    c=[colors[r] for r in y_0],
+    s=1,
+)
 #
 # # n = len(data1_train)
 # # plt.scatter(
@@ -169,4 +185,4 @@ for train_index, test_index in kfold.split(X_0, y_0):
 # #     s=1,
 # # )
 #
-# plt.show()
+plt.show()
