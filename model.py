@@ -395,26 +395,26 @@ X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
                                                         stratify=y,
                                                         test_size=0.2)
 
+
+# Scatter plot for PCA(n_components=2)
+X_reduced = PCA(n_components=2).fit_transform(X_0)
+colors = {1: 'r', 2: 'g', 3: 'b', 4: 'y', 5: 'k'}
+
+fig = plt.figure(1, figsize=(8, 6))
+
+plt.scatter(
+    X_reduced[:, 0],
+    X_reduced[:, 1],
+    c=[colors[r] for r in y_0],
+    s=1,
+)
+
 # Example usage
-# save_models_kfold(X_0, y_0, LinearRegression(), RandomUnderSampler(random_state=RANDOM_SEED))
-# evaluate_regression(X_0, y_0, 'LinearRegression', 'RandomUnderSampler')
 
 # save_models_kfold(X_0, y_0, LinearRegression(), NearMiss(version=1, n_neighbors=3, n_neighbors_ver3=3), '', 'ver1_n3')
 # evaluate_regression(X_0, y_0, 'LinearRegression', 'NearMiss_ver1_n3')
 
-# save_models_kfold(X_0, y_0, LogisticRegression(multi_class='ovr', solver='liblinear'), 'ovr_liblinear', RandomOverSampler(random_state=RANDOM_SEED))
-# evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 'RandomUnderSampler')
-
 # save_ordreg_kfold(X_0, y_0, 'logit', 'bfgs', RandomUnderSampler(random_state=0))
-
-# save_models_kfold(X_0, y_0, LogisticRegression(multi_class='ovr', solver='liblinear', RandomUnderSampler(random_state=RANDOM_SEED, sampling_strategy=under_1), 'ovr_liblinear', '30k')
-
-under_1 = {5: 30000,
-           4: 30000,
-           3: 30000}
-
-over_1 = {1: 30000,
-          2: 30000}
 
 # save_models_kfold(X_0, y_0,
 #                   model=LogisticRegression(multi_class='ovr', solver='liblinear'),
@@ -424,17 +424,17 @@ over_1 = {1: 30000,
 #                   balancing2=RandomUnderSampler(random_state=RANDOM_SEED, sampling_strategy=under_1),
 #                   balancing2_appendix='30k')
 
-save_models_kfold(X_0, y_0,
-                  model=LogisticRegression(multi_class='ovr', solver='liblinear'),
-                  model_appendix='ovr_liblinear',
-                  pca_dim=8,
-                  balancing=SMOTE(random_state=RANDOM_SEED,
-                                  sampling_strategy={1: 30000, 2: 30000, 3: 30000},
-                                  k_neighbors=NearestNeighbors(n_neighbors=5,
-                                                               n_jobs=-1)),
-                  balancing_appendix='30k',
-                  balancing2=ClusterCentroids(random_state=RANDOM_SEED)
-                  )
+# save_models_kfold(X_0, y_0,
+#                   model=LogisticRegression(multi_class='ovr', solver='liblinear'),
+#                   model_appendix='ovr_liblinear',
+#                   pca_dim=8,
+#                   balancing=SMOTE(random_state=RANDOM_SEED,
+#                                   sampling_strategy={1: 30000, 2: 30000, 3: 30000},
+#                                   k_neighbors=NearestNeighbors(n_neighbors=5,
+#                                                                n_jobs=-1)),
+#                   balancing_appendix='30k',
+#                   balancing2=ClusterCentroids(random_state=RANDOM_SEED)
+#                   )
 
 # evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 8, 'SMOTE_100k_n10_RandomUnderSampler')
 
