@@ -439,12 +439,12 @@ X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
 
 # evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 8, 'SMOTE_100k_n10_RandomUnderSampler')
 
-# save_models_kfold(X_0, y_0,
-#                   model=SVC(probability=True),
-#                   model_appendix='',
-#                   pca_dim=32,
-#                   balancing=RandomUnderSampler(random_state=RANDOM_SEED),
-#                   balancing_appendix='',
-#                   balancing2=None,
-#                   balancing2_appendix=''
-#                   )
+save_models_kfold(X_0, y_0,
+                  model=SVC(probability=True),
+                  model_appendix='',
+                  pca_dim=256,
+                  balancing=RandomUnderSampler(random_state=RANDOM_SEED),
+                  balancing_appendix='',
+                  balancing2=None,
+                  balancing2_appendix=''
+                  )
