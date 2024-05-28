@@ -10,18 +10,19 @@ from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, NearestNeighbors
-from imblearn.under_sampling import RandomUnderSampler, NearMiss, ClusterCentroids
+from imblearn.under_sampling import RandomUnderSampler, NearMiss, ClusterCentroids, CondensedNearestNeighbour, TomekLinks
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 from imblearn.combine import SMOTEENN, SMOTETomek
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, root_mean_squared_error, mean_absolute_error, log_loss, accuracy_score, \
-    ConfusionMatrixDisplay
+from sklearn.metrics import mean_squared_error, root_mean_squared_error, mean_absolute_error, log_loss, accuracy_score, ConfusionMatrixDisplay
+from sklearn.preprocessing import StandardScaler
 from statsmodels.miscmodels.ordinal_model import OrderedModel
 from pandas.api.types import CategoricalDtype
 import joblib
 import os
 from statistics import fmean
 import pickle as pk
+from sklearn.pipeline import make_pipeline
 
 N_SPLITS = 11
 RANDOM_SEED = 123
@@ -396,18 +397,18 @@ X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
                                                         test_size=0.2)
 
 
-# Scatter plot for PCA(n_components=2)
-X_reduced = PCA(n_components=2).fit_transform(X_0)
-colors = {1: 'r', 2: 'g', 3: 'b', 4: 'y', 5: 'k'}
-
-fig = plt.figure(1, figsize=(8, 6))
-
-plt.scatter(
-    X_reduced[:, 0],
-    X_reduced[:, 1],
-    c=[colors[r] for r in y_0],
-    s=1,
-)
+# # Scatter plot for PCA(n_components=2)
+# X_reduced = PCA(n_components=2).fit_transform(X_0)
+# colors = {1: 'r', 2: 'g', 3: 'b', 4: 'y', 5: 'k'}
+#
+# fig = plt.figure(1, figsize=(8, 6))
+#
+# plt.scatter(
+#     X_reduced[:, 0],
+#     X_reduced[:, 1],
+#     c=[colors[r] for r in y_0],
+#     s=1,
+# )
 
 # Example usage
 
@@ -429,7 +430,7 @@ plt.scatter(
 #                   model_appendix='ovr_liblinear',
 #                   pca_dim=8,
 #                   balancing=SMOTE(random_state=RANDOM_SEED,
-#                                   sampling_strategy={1: 30000, 2: 30000, 3: 30000},
+#                                   sampling_strategy={1: 30000, 2: 30000},
 #                                   k_neighbors=NearestNeighbors(n_neighbors=5,
 #                                                                n_jobs=-1)),
 #                   balancing_appendix='30k',
@@ -439,9 +440,11 @@ plt.scatter(
 # evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 8, 'SMOTE_100k_n10_RandomUnderSampler')
 
 # save_models_kfold(X_0, y_0,
-#                   model=LogisticRegression(multi_class='ovr', solver='liblinear'),
-#                   model_appendix='ovr_liblinear',
-#                   pca_dim=1024,
+#                   model=SVC(probability=True),
+#                   model_appendix='',
+#                   pca_dim=32,
 #                   balancing=RandomUnderSampler(random_state=RANDOM_SEED),
+#                   balancing_appendix='',
+#                   balancing2=None,
+#                   balancing2_appendix=''
 #                   )
-

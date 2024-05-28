@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
 
 
 def get_reviews_from_soup(soup):
@@ -28,10 +29,10 @@ def get_reviews_from_soup(soup):
     # n = len(authors_container)
     authors, dates, scores, texts, helpful, not_helpful = [], [], [], [], [], []
 
-    reviews_list = reviews_container.find_all('li', recursive=False)
+    reviews_list = reviews_container.find_all('li', attrs={'itemprop': 'review'}, recursive=False)
     for item in reviews_list:
         core = item.find('div', attrs={'class': 'bv-content-core'})
-        feedback = item.find('div', attrs={'class': 'bv-active-feedback'})
+        # feedback = item.find('div', attrs={'class': 'bv-active-feedback'})
         authors.append(core.find('div', attrs={'class': 'bv-content-meta'}).find('span', attrs={'class': 'bv-author'}).find('span', attrs={'itemprop': 'name'}).text)
         dates.append(core.find('div', attrs={'class': 'bv-content-meta'}).find('div', attrs={'class': 'bv-content-datetime'}).find('span', attrs={'class': 'bv-content-datetime-stamp'}).text.removesuffix(' \xa0'))
         scores.append(core.find('span', attrs={'class': 'bv-content-rating'}).find('meta', attrs={'itemprop': 'ratingValue'}).get('content', default=None))
@@ -42,8 +43,8 @@ def get_reviews_from_soup(soup):
             t = t + t_container[j].text + ' '
         texts.append(t)
 
-        helpful.append(feedback.find('button', attrs={'class': 'bv-content-btn-feedback-yes'}).find('span', attrs='bv-content-btn-count').text)
-        not_helpful.append(feedback.find('button', attrs={'class': 'bv-content-btn-feedback-no'}).find('span', attrs='bv-content-btn-count').text)
+        # helpful.append(feedback.find('button', attrs={'class': 'bv-content-btn-feedback-yes'}).find('span', attrs='bv-content-btn-count').text)
+        # not_helpful.append(feedback.find('button', attrs={'class': 'bv-content-btn-feedback-no'}).find('span', attrs='bv-content-btn-count').text)
 
     # for i in range(n):
     #     authors.append(authors_container[i].find('span', attrs={'itemprop': 'name'}).text)
@@ -71,7 +72,7 @@ def get_reviews_from_url(url):
     driver.implicitly_wait(30)
     driver.get(url)
 
-    timeout = 10
+    timeout = 30
     try:
         more_clickable = EC.element_to_be_clickable((By.CSS_SELECTOR, more_selector))
         WebDriverWait(driver, timeout).until(more_clickable)
@@ -79,6 +80,7 @@ def get_reviews_from_url(url):
         print("Timed out waiting for page to load")
 
     more_button = driver.find_element(By.CSS_SELECTOR, more_selector)
+    more_button.location_once_scrolled_into_view
     more_button.click()  # click load more button
 
     page_exists = True
@@ -111,5 +113,35 @@ def get_reviews_from_url(url):
 
     return all_authors, all_dates, all_scores, all_texts, all_helpful, all_not_helpful
 
-url = 'https://www.costco.com/macbook-air-laptop-13.6-inch---apple-m2-chip%2c-8-core-cpu%2c-8-core-gpu%2c-8gb-memory%2c-256gb-ssd-storage.product.100713212.html'
-all_authors, all_dates, all_scores, all_texts, all_helpful, all_not_helpful = get_reviews_from_url(url)
+# url = 'https://www.costco.com/macbook-air-laptop-13.6-inch---apple-m2-chip%2c-8-core-cpu%2c-8-core-gpu%2c-8gb-memory%2c-256gb-ssd-storage.product.100713212.html'
+# all_authors, all_dates, all_scores, all_texts, all_helpful, all_not_helpful = get_reviews_from_url(url)
+
+# 'https://www.costco.com/kirkland-signature%2c-organic-extra-virgin-olive-oil%2c-2-l.product.100334841.html',
+#              'https://www.costco.com/clear-touch-food-prep-poly-gloves%2c-one-size%2c-2%2c000-count.product.100410420.html',
+#              'https://www.costco.com/frigidaire-stainless-steel-bottom-loading-water-cooler.product.100493343.html',
+#              'https://www.costco.com/mr.-coffee-one-touch-coffeehouse-espresso-and-cappuccino-machine%2c-dark-stainless.product.100688290.html',
+#              'https://www.costco.com/cuisinart-custom-select-4-slice-toaster.product.100774095.html',
+#              'https://www.costco.com/hotel-signature-800-thread-count-cotton-6-piece-sheet-set.product.4000099225.html',
+#              'https://www.costco.com/ecovacs-deebot-neo%2b-vacuum-and-mop-robot-with-auto-empty-station.product.4000186722.html',
+#              'https://www.costco.com/neocube-50-liter-dual-compartment-28-liter-and-18-liter-stainless-steel-recycle-and-trash-bin.product.100514717.html',
+# 'https://www.costco.com/beats-studio-buds-%2b-true-wireless-noise-cancelling-earbuds-with-applecare%2b-included.product.4000183124.html',
+#              'https://www.costco.com/kirkland-signature-organic-sumatra-whole-bean-coffee%2c-2-lbs%2c-2-pack.product.100787428.html',
+#              'https://www.costco.com/kirkland-signature-stainless-steel-6-burner-gas-grill.product.4000098457.html',
+
+urls_list = ['https://www.costco.com/kirkland-signature-healthy-weight-formula-chicken-%2526-vegetable-dog-food-40-lb..product.100343450.html',
+             'https://www.costco.com/macbook-air-laptop-13.6-inch---apple-m2-chip%2c-8-core-cpu%2c-8-core-gpu%2c-8gb-memory%2c-256gb-ssd-storage.product.100713212.html']
+
+all_authors, all_dates, all_scores, all_texts, all_helpful, all_not_helpful = [], [], [], [], [], []
+items = []
+
+for url in urls_list:
+    print('Scraping ' + url)
+    authors, dates, scores, texts, helpful, not_helpful = get_reviews_from_url(url)
+    all_authors = all_authors + authors
+    all_dates = all_dates + dates
+    all_scores = all_scores + scores
+    all_texts = all_texts + texts
+    all_helpful = all_helpful + helpful
+    all_not_helpful = all_not_helpful + not_helpful
+    for i in range(len(all_authors)):
+        items.append(url)
