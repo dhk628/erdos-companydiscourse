@@ -116,19 +116,19 @@ def get_reviews_from_url(url):
 # url = 'https://www.costco.com/macbook-air-laptop-13.6-inch---apple-m2-chip%2c-8-core-cpu%2c-8-core-gpu%2c-8gb-memory%2c-256gb-ssd-storage.product.100713212.html'
 # all_authors, all_dates, all_scores, all_texts, all_helpful, all_not_helpful = get_reviews_from_url(url)
 
-# 'https://www.costco.com/kirkland-signature%2c-organic-extra-virgin-olive-oil%2c-2-l.product.100334841.html',
-#              'https://www.costco.com/clear-touch-food-prep-poly-gloves%2c-one-size%2c-2%2c000-count.product.100410420.html',
-#              'https://www.costco.com/frigidaire-stainless-steel-bottom-loading-water-cooler.product.100493343.html',
-#              'https://www.costco.com/mr.-coffee-one-touch-coffeehouse-espresso-and-cappuccino-machine%2c-dark-stainless.product.100688290.html',
-#              'https://www.costco.com/cuisinart-custom-select-4-slice-toaster.product.100774095.html',
-#              'https://www.costco.com/hotel-signature-800-thread-count-cotton-6-piece-sheet-set.product.4000099225.html',
-#              'https://www.costco.com/ecovacs-deebot-neo%2b-vacuum-and-mop-robot-with-auto-empty-station.product.4000186722.html',
-#              'https://www.costco.com/neocube-50-liter-dual-compartment-28-liter-and-18-liter-stainless-steel-recycle-and-trash-bin.product.100514717.html',
-# 'https://www.costco.com/beats-studio-buds-%2b-true-wireless-noise-cancelling-earbuds-with-applecare%2b-included.product.4000183124.html',
-#              'https://www.costco.com/kirkland-signature-organic-sumatra-whole-bean-coffee%2c-2-lbs%2c-2-pack.product.100787428.html',
-#              'https://www.costco.com/kirkland-signature-stainless-steel-6-burner-gas-grill.product.4000098457.html',
 
-urls_list = ['https://www.costco.com/kirkland-signature-healthy-weight-formula-chicken-%2526-vegetable-dog-food-40-lb..product.100343450.html',
+urls_list = ['https://www.costco.com/kirkland-signature%2c-organic-extra-virgin-olive-oil%2c-2-l.product.100334841.html',
+             'https://www.costco.com/clear-touch-food-prep-poly-gloves%2c-one-size%2c-2%2c000-count.product.100410420.html',
+             'https://www.costco.com/frigidaire-stainless-steel-bottom-loading-water-cooler.product.100493343.html',
+             'https://www.costco.com/mr.-coffee-one-touch-coffeehouse-espresso-and-cappuccino-machine%2c-dark-stainless.product.100688290.html',
+             'https://www.costco.com/cuisinart-custom-select-4-slice-toaster.product.100774095.html',
+             'https://www.costco.com/hotel-signature-800-thread-count-cotton-6-piece-sheet-set.product.4000099225.html',
+             'https://www.costco.com/ecovacs-deebot-neo%2b-vacuum-and-mop-robot-with-auto-empty-station.product.4000186722.html',
+             'https://www.costco.com/neocube-50-liter-dual-compartment-28-liter-and-18-liter-stainless-steel-recycle-and-trash-bin.product.100514717.html',
+             'https://www.costco.com/beats-studio-buds-%2b-true-wireless-noise-cancelling-earbuds-with-applecare%2b-included.product.4000183124.html',
+             'https://www.costco.com/kirkland-signature-organic-sumatra-whole-bean-coffee%2c-2-lbs%2c-2-pack.product.100787428.html',
+             'https://www.costco.com/kirkland-signature-stainless-steel-6-burner-gas-grill.product.4000098457.html',
+             'https://www.costco.com/kirkland-signature-healthy-weight-formula-chicken-%2526-vegetable-dog-food-40-lb..product.100343450.html',
              'https://www.costco.com/macbook-air-laptop-13.6-inch---apple-m2-chip%2c-8-core-cpu%2c-8-core-gpu%2c-8gb-memory%2c-256gb-ssd-storage.product.100713212.html']
 
 all_authors, all_dates, all_scores, all_texts, all_helpful, all_not_helpful = [], [], [], [], [], []
