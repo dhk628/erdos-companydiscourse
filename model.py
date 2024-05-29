@@ -1,33 +1,29 @@
+import os
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import KFold, StratifiedKFold
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
+from statistics import fmean
+import pickle as pk
+import joblib
 import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, NearestNeighbors
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, NearestNeighbors
+from sklearn.metrics import confusion_matrix, mean_squared_error, root_mean_squared_error, mean_absolute_error, log_loss, accuracy_score, ConfusionMatrixDisplay
 from imblearn.under_sampling import RandomUnderSampler, NearMiss, ClusterCentroids, CondensedNearestNeighbour, TomekLinks
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 from imblearn.combine import SMOTEENN, SMOTETomek
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, root_mean_squared_error, mean_absolute_error, log_loss, accuracy_score, ConfusionMatrixDisplay
-from sklearn.preprocessing import StandardScaler
 from statsmodels.miscmodels.ordinal_model import OrderedModel
 from pandas.api.types import CategoricalDtype
-import joblib
-import os
-from statistics import fmean
-import pickle as pk
-from sklearn.pipeline import make_pipeline
+
 
 N_SPLITS = 11
 RANDOM_SEED = 123
 CLASS_NAMES = np.array([1, 2, 3, 4, 5])
-#matplotlib.use('Agg')
+# matplotlib.use('Agg')
 
 
 def balance_and_fit(indep, dep, model, balancing=None, balancing2=None):
@@ -411,40 +407,13 @@ X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
 # )
 
 # Example usage
-
-# save_models_kfold(X_0, y_0, LinearRegression(), NearMiss(version=1, n_neighbors=3, n_neighbors_ver3=3), '', 'ver1_n3')
-# evaluate_regression(X_0, y_0, 'LinearRegression', 'NearMiss_ver1_n3')
-
-# save_ordreg_kfold(X_0, y_0, 'logit', 'bfgs', RandomUnderSampler(random_state=0))
-
+#
 # save_models_kfold(X_0, y_0,
 #                   model=LogisticRegression(multi_class='ovr', solver='liblinear'),
 #                   model_appendix='ovr_liblinear',
-#                   balancing=RandomOverSampler(random_state=RANDOM_SEED, sampling_strategy=over_1, shrinkage=2),
-#                   balancing_appendix='30k_shrinkage2',
-#                   balancing2=RandomUnderSampler(random_state=RANDOM_SEED, sampling_strategy=under_1),
-#                   balancing2_appendix='30k')
-
-# save_models_kfold(X_0, y_0,
-#                   model=LogisticRegression(multi_class='ovr', solver='liblinear'),
-#                   model_appendix='ovr_liblinear',
-#                   pca_dim=8,
-#                   balancing=SMOTE(random_state=RANDOM_SEED,
-#                                   sampling_strategy={1: 30000, 2: 30000},
-#                                   k_neighbors=NearestNeighbors(n_neighbors=5,
-#                                                                n_jobs=-1)),
-#                   balancing_appendix='30k',
-#                   balancing2=ClusterCentroids(random_state=RANDOM_SEED)
-#                   )
-
-# evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 8, 'SMOTE_100k_n10_RandomUnderSampler')
-
-save_models_kfold(X_0, y_0,
-                  model=SVC(probability=True),
-                  model_appendix='',
-                  pca_dim=256,
-                  balancing=RandomUnderSampler(random_state=RANDOM_SEED),
-                  balancing_appendix='',
-                  balancing2=None,
-                  balancing2_appendix=''
-                  )
+#                   balancing=RandomUnderSampler(random_state=RANDOM_SEED),
+#                   balancing_appendix='',
+#                   balancing2=None,
+#                   balancing2_appendix='')
+#
+# evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 8, 'RandomUnderSampler')
