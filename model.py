@@ -288,7 +288,7 @@ def evaluate_regression(indep, dep, model_name, balancing_name):
         data_cms.to_csv(evaluation_path, mode='a')
 
 
-def evaluate_classification(indep, dep, model_name, pca_dim=0, balancing_name=''):
+def evaluate_classification(indep, dep, model_name, pca_dim=0, balancing_name='', file_appendix=''):
     kfold = StratifiedKFold(n_splits=N_SPLITS,
                             shuffle=True,
                             random_state=RANDOM_SEED)
@@ -300,8 +300,8 @@ def evaluate_classification(indep, dep, model_name, pca_dim=0, balancing_name=''
         pca_name = ''
         long_model_name = model_name
     models_list = load_models(long_model_name, balancing_name)
-    evaluation_path = "Models/Evaluation/" + model_name + '_' + pca_name + balancing_name + ".csv"
-    cm_norm_path = "Models/Evaluation/Confusion Matrix/" + model_name + '_' + pca_name + balancing_name + ".png"
+    evaluation_path = "Models/Evaluation/" + model_name + '_' + pca_name + balancing_name + file_appendix + ".csv"
+    cm_norm_path = "Models/Evaluation/Confusion Matrix/" + model_name + '_' + pca_name + balancing_name + file_appendix + ".png"
 
     if os.path.exists(evaluation_path) or os.path.exists(cm_norm_path):
         print('Evaluation or confusion matrices already exists.')
