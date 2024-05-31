@@ -544,3 +544,17 @@ X_0, X_final_test, y_0, y_final_test = train_test_split(X, y,
 #                   balancing2_appendix='')
 #
 # evaluate_classification(X_0, y_0, 'LogisticRegression_ovr_liblinear', 8, 'RandomUnderSampler')
+
+# model = KNeighborsClassifier(n_neighbors=200, n_jobs=-1)
+# pca = PCA(n_components=128)
+# X_0 = pca.fit_transform(X_0)
+# rus = RandomUnderSampler(random_state=123)
+# X_resampled, y_resampled = rus.fit_resample(X_0, y_0)
+# model.fit(X_resampled, y_resampled)
+# joblib.dump(model, '.pkl')
+# predictions = model.predict(pca.transform(X_final_test))
+# acc = accuracy_score(y_final_test, predictions)
+# ce = log_loss(y_final_test, model.predict_proba(X_0))
+# cm = confusion_matrix(y_final_test, predictions, normalize='true')
+# disp_norm = ConfusionMatrixDisplay(cm, display_labels=CLASS_NAMES)
+# disp_norm.plot().figure_.savefig('.png')
